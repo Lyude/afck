@@ -45,11 +45,11 @@ public class Afck {
     }
 
     public static void main(String[] args) {
-    // LGPL stuff
-    System.out.print("afck Copyright (C) 2013 Chandler Paul\n" +
-             "This program comes with ABSOLUTELY NO WARRANTY and is distributed under the terms"    +
-             "of the LGPL license. For more information, please see the file LICENSE at the root"   +
-             "of the source code, or go to http://www.gnu.org/licenses.lgpl.html\n");
+        // LGPL stuff
+        System.out.print("afck Copyright (C) 2013 Chandler Paul\n" +
+                 "This program comes with ABSOLUTELY NO WARRANTY and is distributed under the terms"    +
+                 "of the LGPL license. For more information, please see the file LICENSE at the root"   +
+                 "of the source code, or go to http://www.gnu.org/licenses.lgpl.html\n");
 
         // Don't bother with the GUI if a path is specified on the command line
         if (args.length > 0) {
