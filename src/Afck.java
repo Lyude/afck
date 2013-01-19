@@ -45,11 +45,11 @@ public class Afck {
     }
 
     public static void main(String[] args) {
-	// LGPL stuff
-	System.out.print("afck Copyright (C) 2013 Chandler Paul\n" +
-			 "This program comes with ABSOLUTELY NO WARRANTY and is distributed under the terms"	+
-			 "of the LGPL license. For more information, please see the file LICENSE at the root" 	+
-			 "of the source code, or go to http://www.gnu.org/licenses.lgpl.html\n");
+    // LGPL stuff
+    System.out.print("afck Copyright (C) 2013 Chandler Paul\n" +
+             "This program comes with ABSOLUTELY NO WARRANTY and is distributed under the terms"    +
+             "of the LGPL license. For more information, please see the file LICENSE at the root"   +
+             "of the source code, or go to http://www.gnu.org/licenses.lgpl.html\n");
 
         // Don't bother with the GUI if a path is specified on the command line
         if (args.length > 0) {
@@ -175,16 +175,16 @@ public class Afck {
                     // Check to ensure the index variable is marked correctly
                     itemList = ((Element) propertyList.item(componentResponsesIndex)).getElementsByTagName("item");
                     for (int i = 0; i < itemList.getLength(); i++) {
-                         Node item = itemList.item(i);
+                        Node item = itemList.item(i);
+                        /* Figure out the expected text representation of the
+                         * index variable
+                         */
+                        String indexString = file.getAbsolutePath().replaceFirst(
+                            tmpDir.getAbsolutePath() + "(/|\\\\)(.*(/|\\\\))elementData\\.xml", "$2").
+                            replaceAll("/|\\\\", ".") + "index";
                         if (((Element) item).getAttribute("criterionClass").equals(
                                 "edu.cmu.cs.stage3.alice.core.criterion.InternalReferenceKeyedCriterion") &&
-				((Element) item).getTextContext().equals(file.getAbsolutePath().replaceFirst(tmpDir.getAbsolutePath() + "(/|\\\\)(.*(/|\\\\))elementData\\.xml", "$2").replaceAll("/|\\\\", ".") + "index")) {
-				// ^ I'll clean that up later. bleh.
-				/*                            item.getFirstChild().getNodeValue().equals(*/
-                                //file.getAbsolutePath().substring(
-                                    //file.getAbsolutePath().lastIndexOf(tmpDir.getAbsolutePath())
-                                //).replaceAll("/|\\\\", ".") + ".index"
-                            /*)) {*/
+                            item.getFirstChild().getNodeValue().equals(indexString)) {
                             indexVariableMarkedCorrectly = true;
                             break;
                         }
