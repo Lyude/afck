@@ -18,6 +18,9 @@ import java.io.*;
 import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 import org.w3c.dom.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.StreamResult;
 
 public class Afck {
 
@@ -202,8 +205,55 @@ public class Afck {
                     /* Make sure the index variable is marked correctly,
                      * otherwise fix it
                      */
-                    if (hasIndexVariable (rootElement) && !checkForIndexInternalReferenceMarker(rootElement))
-                            System.out.println("Found one!");
+                    if (hasIndexVariable (rootElement) && !checkForIndexInternalReferenceMarker(rootElement)) {
+                        /* Find the original property element for index, and
+                         * remove it to make space for the new correctly marked
+                         * one
+                         */
+                        System.out.println(file.getAbsolutePath());
+                        NodeList propertyNodes = rootElement.getElementsByTagName("property");
+                        int propertyCount = propertyNodes.getLength();
+                        Node badNode = null;
+                        for (int i = 0; i < propertyCount; i++) {
+                            Node currentNode = propertyNodes.item(i);
+                            
+                            System.out.println(((Element) currentNode).getAttribute("name"));
+                            /* If we've found the bad node, store it in the
+                             * appropriate variable
+                             */
+                            if (((Element) currentNode).getAttribute("name").
+                                equals("index")) {
+                                badNode = currentNode;
+                                break;
+                            }
+                        }
+
+                        // Fix the bad node
+                        ((Element) badNode).setAttribute("criterionClass",
+                            "edu.cmu.cs.stage3.alice.core.criterion.InternalReferenceKeyedCriterion");
+                        /* Determine the full class name of the index variable
+                         * and add it to the bad node
+                         */
+                        ((Element) badNode).setTextContent(file.getAbsolutePath().
+                            replaceFirst(tmpDir.getAbsolutePath() + "(/|\\\\)", "").
+                            replaceFirst("elementData.xml", "").
+                            replaceAll("(/|\\\\)", ".") + "index");
+                        // Write to the elementData file
+                        try {
+                            TransformerFactory tFactory = TransformerFactory.newInstance();
+                            Transformer transformer = tFactory.newTransformer();
+
+                            DOMSource source = new DOMSource(elementData);
+                            StreamResult result = new StreamResult(file);
+                            transformer.transform(source, result);
+                        }
+                        catch (TransformerConfigurationException e) {
+                            System.exit(-1);
+                        }
+                        catch (TransformerException e) {
+                            System.exit(-1);
+                        }
+                    }
                 }
             }
             catch (ParserConfigurationException e) {
