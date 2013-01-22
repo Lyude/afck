@@ -94,6 +94,51 @@ public class Afck {
         }
         return false;
     }
+
+    /**
+     * Zips all the files in a directory
+     * @param newZipFile    The new zip file to write to
+     * @param inputDir      The directory to zip
+     */
+    public static void zipDirectory(File newZipFile, File inputDir) throws Exception {
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(newZipFile));
+        zipAddDir(inputDir, inputDir, out);
+        out.close();
+    }
+
+    /** 
+     * Internal method that recursively adds all the files in a directory to a
+     * new zip file.
+     * @param dir   The directory to zip
+     * @param root  The top directory in the zip
+     * @param out   The ZipOutputStream to use
+     */
+    private static void zipAddDir(File dir, File root, ZipOutputStream out) throws IOException {
+        File[] files = dir.listFiles();
+        byte[] outBuf = new byte[BUFFER_SIZE];
+
+        // Add each file in the directory
+        for (File currentFile : files) {
+            // If we've stumbled upon a directory, recurse into it
+            if (currentFile.isDirectory()) {
+                zipAddDir(currentFile, root, out);
+                continue;
+            }
+
+            FileInputStream in = new FileInputStream(currentFile.getAbsolutePath());
+            // Remember, we don't want to store the full path in the zip file!
+            out.putNextEntry(new ZipEntry(currentFile.getAbsolutePath().
+                             replaceFirst(root.getAbsolutePath() + "/", "")));
+            int len;
+            while ((len = in.read(outBuf)) > 0) 
+                out.write(outBuf, 0, len);
+
+            out.closeEntry();
+            in.close();
+        }
+    }
+
+
     public static void main(String[] args) {
         // LGPL stuff
         System.out.print("afck Copyright (C) 2013 Chandler Paul\n"             +
@@ -194,6 +239,7 @@ public class Afck {
              * for now we'll just stick with DOM
              */
             try {
+                System.out.print("Finding issues...");
                 DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 
@@ -209,14 +255,12 @@ public class Afck {
                          * remove it to make space for the new correctly marked
                          * one
                          */
-                        System.out.println(file.getAbsolutePath());
                         NodeList propertyNodes = rootElement.getElementsByTagName("property");
                         int propertyCount = propertyNodes.getLength();
                         Node badNode = null;
                         for (int i = 0; i < propertyCount; i++) {
                             Node currentNode = propertyNodes.item(i);
                             
-                            System.out.println(((Element) currentNode).getAttribute("name"));
                             /* If we've found the bad node, store it in the
                              * appropriate variable
                              */
@@ -267,6 +311,21 @@ public class Afck {
                 System.err.println(e.getMessage());
                 System.exit(-1);
             }
+
+            System.out.print(" done!\n");
+
+            // Create the new world file for Alice
+            System.out.print("Creating new world file...");
+            try {
+                zipDirectory(new File(args[1]), tmpDir);
+            }
+            catch (Exception e) {
+                System.out.print("\n");
+                System.err.println(e.toString());
+                e.printStackTrace();
+                System.exit(-1);
+            }
+            System.out.print(" done!\n");
 
             // Clean up
             tmpDir.delete();
