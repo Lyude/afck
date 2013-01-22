@@ -211,17 +211,8 @@ public class Afck {
                     }
                 }
             }
-            catch (ZipException e) {
-                System.err.printf("Fatal zip file exception! %s\n" +
-                                  "Exiting...\n",
-                                  e.getMessage());
-                    
-                // TODO: Clean up
-
-                System.exit(-1);
-            }
-            catch (IOException e) {
-                System.err.printf("Fatal I/O Exception: %s\n" +
+            catch (Exception e) {
+                System.err.printf("Fatal exception! %s\n" +
                                   "Exiting...\n",
                                   e.getMessage());
                 System.exit(-1);
@@ -287,25 +278,19 @@ public class Afck {
                             StreamResult result = new StreamResult(file);
                             transformer.transform(source, result);
                         }
-                        catch (TransformerConfigurationException e) {
-                            System.exit(-1);
-                        }
-                        catch (TransformerException e) {
+                        catch (Exception e) {
+                            System.err.printf("Fatal exception! %s\n" +
+                                              "Exiting...\n",
+                                              e.getMessage());
                             System.exit(-1);
                         }
                     }
                 }
             }
-            catch (ParserConfigurationException e) {
-                System.err.println(e.getMessage());
-                System.exit(-1);
-            }
-            catch (SAXException e) {
-                System.err.println(e.getMessage());
-                System.exit(-1);
-            }
-            catch (IOException e) {
-                System.err.println(e.getMessage());
+            catch (Exception e) {
+                System.err.printf("Fatal exception! %s\n" +
+                                  "Exiting...\n",
+                                  e.getMessage());
                 System.exit(-1);
             }
 
@@ -317,11 +302,12 @@ public class Afck {
                 zipDirectory(new File(args[1]), tmpDir);
             }
             catch (Exception e) {
-                System.out.print("\n");
-                System.err.println(e.toString());
-                e.printStackTrace();
+                System.err.printf("Fatal exception! %s\n" +
+                                  "Exiting...\n",
+                                  e.getMessage());
                 System.exit(-1);
             }
+
             System.out.print(" done!\n");
 
             // Clean up
