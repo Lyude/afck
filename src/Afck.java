@@ -128,7 +128,7 @@ public class Afck {
             FileInputStream in = new FileInputStream(currentFile.getAbsolutePath());
             // Remember, we don't want to store the full path in the zip file!
             out.putNextEntry(new ZipEntry(currentFile.getAbsolutePath().
-                             replaceFirst(root.getAbsolutePath() + "/", "")));
+                             replace(root.getAbsolutePath() + File.separator, "")));
             int len;
             while ((len = in.read(outBuf)) > 0) 
                 out.write(outBuf, 0, len);
@@ -166,8 +166,8 @@ public class Afck {
             // Determine the actual name of the project
             worldName = brokenAliceWorld.getPath();
             // Create a temporary directory and extract the zip
-            tmpDir = new File(System.getProperty("java.io.tmpdir") + "/afck-" +
-                              Integer.toString(Math.abs(generator.nextInt())));
+            tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator +
+                              "afck-" + Integer.toString(Math.abs(generator.nextInt())));
             tmpDir.mkdirs();
 
             // Attempt to extract the alice world to the temporary directory
@@ -278,9 +278,9 @@ public class Afck {
                          * and add it to the bad node
                          */
                         ((Element) badNode).setTextContent(file.getAbsolutePath().
-                            replaceFirst(tmpDir.getAbsolutePath() + "(/|\\\\)", "").
-                            replaceFirst("elementData.xml", "").
-                            replaceAll("(/|\\\\)", ".") + "index");
+                            replace(tmpDir.getAbsolutePath() + File.separator, "").
+                            replace("elementData.xml", "").
+                            replace(File.separator, ".") + "index");
                         // Write to the elementData file
                         try {
                             TransformerFactory tFactory = TransformerFactory.newInstance();
