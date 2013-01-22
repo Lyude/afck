@@ -187,7 +187,6 @@ public class Afck {
 
             System.out.print(" done!\n");
 
-            // TODO: Fix the alice file
             /* Look through all the element data in the alice world and find
              * improperly marked index variables
              * Note: At some point I might convert this to the SAX parser, but
