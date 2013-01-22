@@ -153,7 +153,6 @@ public class Afck {
             File brokenAliceWorld = new File(args[0]);
             File tmpDir;
             String worldName;
-            Random generator = new Random();
             
             /* Check to see if the main argument is a file name, otherwise
              * return an error
@@ -167,7 +166,8 @@ public class Afck {
             worldName = brokenAliceWorld.getPath();
             // Create a temporary directory and extract the zip
             tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator +
-                              "afck-" + Integer.toString(Math.abs(generator.nextInt())));
+                              "afck-" + Integer.toString(Math.abs(new Random().
+                                                                  nextInt())));
             tmpDir.mkdirs();
 
             // Attempt to extract the alice world to the temporary directory
