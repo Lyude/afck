@@ -273,3 +273,4 @@ public class Afck {
         }
     }
 }
+// vim: tw=80:expandtab:tabstop=4:softtabstop=4:shiftwidth=4
