@@ -152,7 +152,6 @@ public class Afck {
         if (args.length > 0) {
             File brokenAliceWorld = new File(args[0]);
             File tmpDir;
-            String worldName;
             
             /* Check to see if the main argument is a file name, otherwise
              * return an error
@@ -162,8 +161,6 @@ public class Afck {
                 System.exit(-1);
             }
 
-            // Determine the actual name of the project
-            worldName = brokenAliceWorld.getPath();
             // Create a temporary directory and extract the zip
             tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator +
                               "afck-" + Integer.toString(Math.abs(new Random().
