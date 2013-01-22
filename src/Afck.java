@@ -44,6 +44,53 @@ public class Afck {
         return filteredList;
     }
 
+    /**
+     * Recursively look for an internal reference property for the index variable
+     * in the elementData.xml file.
+     *
+     * @param rootElement The top element in the elementData.xml file
+     * @return            Whether or not the property was found
+     */
+    public static boolean checkForIndexInternalReferenceMarker(Element rootElement) {
+        NodeList elements = rootElement.getChildNodes();
+        int elementCount = elements.getLength();
+        for (int i = 0; i < elementCount; i++) {
+            // Make sure the current item is actually an element
+            if (elements.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Element currentElement = (Element) elements.item(i);
+                /* If the currentElement has children, check to see if we can find
+                 * the property node for the index variable in them
+                 */
+                if (currentElement.hasChildNodes())
+                    if (checkForIndexInternalReferenceMarker(currentElement))
+                        return true;
+
+                /* If the current element has a criterionClass, check if it marks
+                 * index as an internal reference
+                 */
+                if (currentElement.hasAttribute("criterionClass")) {
+                    if (currentElement.getAttribute("criterionClass").equals(
+                        "edu.cmu.cs.stage3.alice.core.criterion.InternalReferenceKeyedCriterion") &&
+                        currentElement.getFirstChild().getNodeValue().endsWith("index"))
+                        return true;
+                }
+            }
+        }
+
+        // No index marker was found
+        return false;
+    }
+
+    public static boolean hasIndexVariable(Element rootElement) {
+        NodeList childFiles = rootElement.getElementsByTagName("child");
+        int childFilesLength = childFiles.getLength();
+        for (int i = 0; i < childFilesLength; i++) {
+            Element currentElement = ((Element) childFiles.item(i));
+            if (currentElement.getAttribute("filename").equals("index"))
+                return true;
+        }
+        return false;
+    }
     public static void main(String[] args) {
         // LGPL stuff
         System.out.print("afck Copyright (C) 2013 Chandler Paul\n"             +
@@ -151,50 +198,12 @@ public class Afck {
                 for (File file : getAllElementData(tmpDir)) {
                     Document elementData = docBuilder.parse(file);
                     Element rootElement = elementData.getDocumentElement();
-                    NodeList propertyList;
-                    NodeList itemList;
-                    int componentResponsesIndex = 0;
-                    boolean indexVariableMarkedCorrectly = false;
-
-                    /* Check to see if the current element is a loop, if it's not
-                     * then there's no chance of a index variable being in there, so
-                     * we can safely skip it
-                     */
-                    if (!rootElement.getAttribute("class").equals(
-                        "edu.cmu.cs.stage3.alice.core.response.LoopNInOrder"))
-                        continue;
                     
-                    // Find the componentResponses section
-                    propertyList = rootElement.getElementsByTagName("property");
-                    for (int i = 0; i < propertyList.getLength(); i++) {
-                        if (((Element) propertyList.item(i)).getAttribute("name").equals(
-                            "componentResponses")) {
-                            componentResponsesIndex = i;
-                            break;
-                        }
-                    }
-
-                    // Check to ensure the index variable is marked correctly
-                    itemList = ((Element) propertyList.item(componentResponsesIndex)).getElementsByTagName("item");
-                    for (int i = 0; i < itemList.getLength(); i++) {
-                        Node item = itemList.item(i);
-                        /* Figure out the expected text representation of the
-                         * index variable
-                         */
-                        String indexString = file.getAbsolutePath().replaceFirst(
-                            tmpDir.getAbsolutePath() + "(/|\\\\)(.*(/|\\\\))elementData\\.xml", "$2").
-                            replaceAll("/|\\\\", ".") + "index";
-                        if (((Element) item).getAttribute("criterionClass").equals(
-                                "edu.cmu.cs.stage3.alice.core.criterion.InternalReferenceKeyedCriterion") &&
-                            item.getFirstChild().getNodeValue().equals(indexString)) {
-                            indexVariableMarkedCorrectly = true;
-                            break;
-                        }
-                    }
-                    if (indexVariableMarkedCorrectly)
-                        continue;
-                    // Else fix it
-                    System.out.println("Found one!");
+                    /* Make sure the index variable is marked correctly,
+                     * otherwise fix it
+                     */
+                    if (hasIndexVariable (rootElement) && !checkForIndexInternalReferenceMarker(rootElement))
+                            System.out.println("Found one!");
                 }
             }
             catch (ParserConfigurationException e) {
